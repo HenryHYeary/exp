@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { ExplainPanel } from './panel';
 
 export function activate(context: vscode.ExtensionContext) {
 	const output = vscode.window.createOutputChannel("Expository");
@@ -13,36 +14,20 @@ export function activate(context: vscode.ExtensionContext) {
 		const code = editor.document.getText(editor.selection);
 		const lang = editor.document.languageId;
 		const cfg = vscode.workspace.getConfiguration("exp");
+		const endpoint = cfg.get<string>('endpoint', 'http://localhost:11434');
+		const model = cfg.get<string>('model', 'llama3.1');
 
-		output.clear();
-		output.show(true);
+		const panel = ExplainPanel.show();
+		const controller = panel.begin(lang, code);
 
-		const controller = new AbortController();
 
-		await vscode.window.withProgress(
-			{
-				location: vscode.ProgressLocation.Notification,
-				title: "Explaining selection...",
-				cancellable: true,
-			},
-			async (_progress, token) => {
-				token.onCancellationRequested(() => controller.abort());
-				try {
-					await streamExplanation(
-						cfg.get<string>("endpoint", "http://localhost:11434"),
-						cfg.get<string>("model", "llama3.1"),
-						lang,
-						code,
-						(chunk) => output.append(chunk),
-						controller.signal
-					);
-				} catch (err: any) {
-					if (err.name !== "AbortError") {
-						vscode.window.showErrorMessage(`Local LLM call failed: ${err.message}`);
-					}
-				}
-			}
-		);
+		try {
+			await streamExplanation(endpoint, model, lang, code, (c) => panel.append(c), controller.signal);
+		} catch (err: any) {
+			if (err.name !== 'AbortError') { panel.showError(err.message); }
+		} finally {
+			panel.finish();
+		}
 	});
 
 	context.subscriptions.push(cmd, output);
