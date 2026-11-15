@@ -1,71 +1,60 @@
-# exp README
+# Explain Selection (Local LLM)
 
-This is the README for your extension "exp". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that explains highlighted code using a model running on your own machine through [Ollama](https://ollama.com). Nothing leaves your computer, and you can ask follow-up questions about the code in the same panel.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- **Explain any selection.** Highlight code, right-click, and choose **Explain Selection (Local LLM)**. The explanation streams into a side panel as the model writes it.
+- **Follow-up questions.** Ask about a specific line, why something was written a certain way, or how to change it. The conversation keeps the full context of the code you selected.
+- **Markdown rendering.** Responses show formatted text, lists, and code blocks, themed to match your editor.
+- **Stop at any time.** Cancel a long response mid-stream. The partial answer stays in the conversation.
+- **Fully local and configurable.** Point it at any Ollama model and any endpoint.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. [Install Ollama](https://ollama.com/download) and make sure it is running.
+2. Pull a model. A coding model works well, for example:
 
-## Extension Settings
+   ```bash
+   ollama pull qwen2.5-coder:7b
+   ```
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+3. Set `exp.model` to the model you pulled (see Settings below). The default is `llama3.1`.
 
-For example:
+## Usage
 
-This extension contributes the following settings:
+1. Open a file and highlight some code.
+2. Right-click and select **Explain Selection (Local LLM)**, or run it from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`). The default keybinding is `Ctrl+Alt+E`.
+3. Read the explanation in the panel beside your editor.
+4. Type a follow-up in the box at the bottom. `Enter` sends, `Shift+Enter` adds a new line.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+Selecting new code and running the command again starts a fresh conversation.
 
-## Known Issues
+## Settings
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+| Setting | Default | Description |
+| --- | --- | --- |
+| `exp.endpoint` | `http://localhost:11434` | Base URL of your Ollama server. |
+| `exp.model` | `llama3.1` | Name of the Ollama model to use. Run `ollama list` to see what you have installed. |
+| `exp.contextLength` | `8192` | Context window, in tokens, requested from Ollama. Larger values allow longer conversations but use more memory. |
 
-## Release Notes
+## Troubleshooting
 
-Users appreciate release notes as you update your extension.
+- **"Couldn't reach http://localhost:11434. Is Ollama turned on?"** Start Ollama and try again. If it runs on another machine or port, update `exp.endpoint`.
+- **`HTTP 404` error.** The model in `exp.model` isn't installed. Run `ollama pull <model>` or change the setting to a model from `ollama list`.
+- **Follow-ups seem to forget the code.** Long conversations can exceed the context window, and the oldest follow-ups are dropped first. Raise `exp.contextLength`, or select the code again to start fresh.
+- **Slow responses.** Try a smaller model. Around 7B parameters is a good balance on a laptop.
 
-### 1.0.0
+## Privacy
 
-Initial release of ...
+Your code is sent only to the endpoint you configure, which is `localhost` by default. The extension makes no other network requests and collects no telemetry.
 
-### 1.0.1
+## Known limitations
 
-Fixed issue #.
+- Only one conversation is kept at a time.
+- A single selection larger than the model's context window is not split up.
+- Only Ollama's chat API is supported.
 
-### 1.1.0
+## License
 
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+MIT

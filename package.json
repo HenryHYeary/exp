@@ -1,8 +1,11 @@
 {
   "name": "exp",
   "displayName": "expository",
-  "description": "Allows you to highlight your code and generate an explanation from a local llm model.",
+  "description": "Explain highlighted code with a local Ollama model, with follow-up questions.",
   "version": "0.0.1",
+  "publisher": "HenryHYeary",
+  "repository": { "type": "git", "url": "https://github.com/HenryHYeary/exp" },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.145.0"
   },
