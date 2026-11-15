@@ -43,6 +43,11 @@
         "exp.model": {
           "type": "string",
           "default": "llama3.1"
+        },
+        "exp.contextLength": {
+          "type": "number",
+          "default": 8192,
+          "description": "Context window (in tokens) requested from Ollama. Larger values use more memory."
         }
       }
     }
